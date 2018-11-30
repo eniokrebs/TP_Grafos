@@ -100,7 +100,7 @@ Grafo GRAFOleitura(const char *nomearq){
 
     r = fscanf(arquivo, "%d %d", &n, &m);
     Grafo G = GRAFOcria(n);
-		G->peso = (int *) malloc(n * sizeof(int));
+		G->peso = VETORint(n);
 
 		r = fscanf(arquivo, "%d", &flag);
 
@@ -203,22 +203,81 @@ Grafo Kruskal(Grafo G,int *custo){
       }
     }
     // imprime arvore
-    //GRAFOimprime(AGM);
+    GRAFOimprime(AGM);
     printf("** Custo AGM: %d\n", *custo);
     return(AGM);
 }
 
 Grafo Heuristica(Grafo AGM, Grafo G,int *custo){
-  int i,j;
+
+  int i,j,peso=0,cont=0;;
+  int *grau = malloc(G->n * sizeof(int));
+  Arco a;
+
+  //Descobrindo grau dos vértices
+  for(i=0; i < AGM->n; i++){
+    for(j=0; j < AGM->n; j++){
+      if(AGM->adj[i][j] != 0){
+        grau[i]++;
+      }
+    }
+  }
+
+  //Adicionando o peso dos vértices  no custo da AGM dos vertices que possuem grau2
+  for(i=0; i < AGM->n; i++){
+    for(j=0; j < AGM->n; j++){
+      if(AGM->adj[i][j]!=0){
+        if((grau[i] == 2) && (grau[j] == 2)){
+          peso = peso + G->peso[i] + G->peso[j];
+        }else{
+          if(grau[i] == 2){
+            peso += G->peso[i];
+          }else{
+            if(grau[j] == 2){
+              peso += G->peso[j];
+            }
+          }
+        }
+      }
+    }
+  }
+  for(i=0; i < AGM->n; i++){
+    for(j=0; j < AGM->n; j++){
+      if(AGM->adj[i][j]!=0){
+        if((grau[i] == 2) && (grau[j] == 2)){
+          peso = peso + G->peso[i] + G->peso[j];
+        }else{
+          if(grau[i] == 2){
+            peso += G->peso[i];
+          }else{
+            if(grau[j] == 2){
+              peso += G->peso[j];
+            }
+          }
+        }
+      }
+    }
+  }
 
   for(i=0; i < AGM->n; i++){
     for(j=0; j < AGM->n; j++){
       if(AGM->adj[i][j]!=0){
-        *custo += AGM->peso[i];
-        *custo += AGM->peso[j];
+        if((grau[i] == 1) && (grau[j] == 1)){
+          peso = peso - G->peso[i] - G->peso[j];
+        }else{
+          if(grau[i] == 1){
+            peso -= G->peso[i];
+          }else{
+            if(grau[j] == 1){
+              peso -= G->peso[j];
+            }
+          }
+        }
       }
     }
   }
+
+  *custo +=peso;
   printf("** Custo Heuristica: %d\n", *custo);
   return(AGM);
 }
